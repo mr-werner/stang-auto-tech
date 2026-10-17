@@ -1,189 +1,118 @@
-import blueprintLogo from "./assets/blueprint-webstudio-logo.png";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, BadgeCheck, CheckCircle2, Clock, MapPin, Menu, Minus, Phone, Plus, X } from "lucide-react";
-import SITE from "./site.js";
+import React, { useEffect, useState } from "react";
+import {
+  ArrowRight, ArrowUpRight, Bus, Car, CheckCircle2, Clock, Cog, Disc3, Facebook, Gauge, HandHeart, Instagram,
+  KeyRound, LifeBuoy, MapPin, Menu, Phone, Settings, ShieldCheck, Sparkles, Thermometer, Truck, Wind, Wrench, X, Zap,
+} from "lucide-react";
+import { ConceptWidget, StudioCredit } from "./concept.jsx";
 
 // -----------------------------------------------------------------------------
-// All business content lives in src/site.js. This file only lays it out.
+// CONTENT. Facts come from Stang Auto Tech's current site (stangautotech.com,
+// which redirects to broomfieldautorepair.com), checked 2026-10-17.
 // -----------------------------------------------------------------------------
 
-const { COMPANY, PHONE, PHONE_DISPLAY, EMAIL, ADDRESS, CITY, MAPS_QUERY, FOUNDED, FALLBACK_RATING } = SITE;
-const GOOGLE_REVIEWS_URL = SITE.GOOGLE_PLACE_ID
-  ? `https://search.google.com/local/reviews?placeid=${SITE.GOOGLE_PLACE_ID}`
-  : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAPS_QUERY)}`;
-const GOOGLE_WRITE_REVIEW_URL = SITE.GOOGLE_PLACE_ID ? `https://search.google.com/local/writereview?placeid=${SITE.GOOGLE_PLACE_ID}` : null;
+const COMPANY = "Stang Auto Tech";
+const ABBR = "sat";
+const PHONE = "3034043813";
+const PHONE_DISPLAY = "(303) 404-3813";
+const ADDRESS = "7202 W 116th Ave";
+const CITY = "Broomfield, CO 80020";
+const MAPS_QUERY = "Stang Auto Tech, 7202 W 116th Ave, Broomfield, CO 80020";
+const END_DATE = "2026-11-24T23:59:59-07:00";
+const GOOGLE_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAPS_QUERY)}`;
 
-// Public contact details for the studio — edit here, no environment variables required.
-const STUDIO_PHONE = "+17205156647";
-const STUDIO_EMAIL = "hello@blueprintwebstudio.com";
-const STUDIO_WEBSITE = "https://blueprintwebstudio.com";
-const STUDIO_SOURCE = `${SITE.ABBR}.blueprintwebstudio.com`;
+// The shop's own images, hotlinked from its current site for the concept. Host copies (with permission) before launch.
+const IMG = "https://irp.cdn-website.com/a6341a53/dms3rep/multi/opt";
+const PHOTOS = {
+  logo: `${IMG}/logo+%2810%29-1920w.png`,
+  owner: `${IMG}/Hero-Stang-Auto-Tech-1920w.png`,
+  kyle: `${IMG}/kyle-isolated-Stang-Auto-Tech-860h.png`,
+  team: `${IMG}/Team_group_Stang_Autotech-2304w.png`,
+  snow: `${IMG}/Team_snow_Stang_AutoTech-2304w.png`,
+  interior: `${IMG}/Welcome-1-Stang-Auto-Tech-927w.png`,
+  tire: `${IMG}/Welcome-2-Stang-Auto-Tech-445h.png`,
+  mentor: `${IMG}/Welcome-3-Stang-Auto-Tech-445h.png`,
+  mustang: `${IMG}/FORD-Mustang-GT-Stang-Auto-Tech-895h.png`,
+};
 
-const END_DATE = import.meta.env.VITE_CONCEPT_END_DATE || SITE.END_DATE;
+const HOURS = [
+  ["Mon – Thu", "7:00 am – 5:00 pm"],
+  ["Friday", "7:00 am – 2:00 pm"],
+  ["Sat – Sun", "Closed"],
+];
 
-function Title({ parts }) {
-  const [plain, em] = parts;
-  return <>{plain}{em && <em>{em}</em>}</>;
+const AWARDS = [
+  { src: `${IMG}/AAA-topshop-Stang-Auto-Tech-640w.png`, alt: "AAA Top Shop winner", label: "AAA Top Shop", sub: "AAA Approved Auto Repair" },
+  { src: `${IMG}/caefax-center-2024-Stang-Auto-Tech-640w.png`, alt: "CARFAX Top-Rated Service Center 2024", label: "CARFAX Top-Rated", sub: "Service Center 2024" },
+  { src: `${IMG}/caefax-center-2025-Stang-Auto-Tech-9284edaf-640w.png`, alt: "CARFAX Top-Rated Service Center 2025", label: "CARFAX Top-Rated", sub: "Service Center 2025" },
+  { src: "https://irp.cdn-website.com/a6341a53/dms3rep/multi/ASA-logo-3Dt-Stang-Auto-Tech.svg", alt: "Automotive Service Association member", label: "ASA Member", sub: "Automotive Service Association" },
+];
+
+const PERKS = [
+  ["Free", "Shuttle service", "A ride to work or home while we fix it."],
+  ["$15", "Valet service", "We pick up your car and bring it back."],
+  ["$25", "Per-day rental", "Keep moving with a rental car."],
+  ["5th", "Oil change free", "A thank-you to returning customers."],
+];
+
+// Their 10 service menus, kept whole so nothing the current site teaches is lost.
+const SERVICES = [
+  { title: "General Repair", icon: Wrench, lead: "Domestic and import cars, fleet vehicles and off-road rigs.", items: ["Domestic general repair", "Import general repair", "Fleet repairs", "Off-road vehicle repairs"] },
+  { title: "Electrical", icon: Zap, lead: "From dead batteries to the computers that run your engine.", items: ["Batteries", "Starters & alternators", "Computer controls & systems", "Diagnostic testing & inspection", "Drivability", "Engine controls"] },
+  { title: "Engine", icon: Cog, lead: "Timing work through full engine replacement.", items: ["Cylinder heads", "Timing components", "Engine replacement"] },
+  { title: "Car Care", icon: Sparkles, lead: "The maintenance that keeps everything else from breaking.", items: ["Oil, lube & filter", "Fluid services", "Spark plugs", "Fuel injection", "Ignition systems & components", "Hybrid & electric car repair"] },
+  { title: "Heating & A/C", icon: Thermometer, lead: "Comfortable cabins in January and July.", items: ["Air conditioning", "Radiators", "Thermostats", "Belts & hoses", "Coolant exchange", "Temperature controls"] },
+  { title: "Transmission", icon: Settings, lead: "Automatic, manual, CVT and everything that turns the wheels.", items: ["Automatic transmissions", "Manual transmissions", "Clutches", "CVT", "4-wheel & front-wheel drive", "Transfer case", "Differential", "Drive & propeller shafts", "Fluid exchange"] },
+  { title: "Steering & Suspension", icon: Gauge, lead: "A straight, quiet, planted ride.", items: ["Shocks & struts", "Ball joints", "Control arms & bushings", "Tie rod ends & linkage", "Rack & pinion, steering gears", "Power steering pumps & hoses", "Stabilizer bars", "Alignment"] },
+  { title: "Brakes", icon: Disc3, lead: "Stopping power you never have to think about.", items: ["Pads & shoes", "Rotors", "Calipers", "Hoses & master cylinders", "ABS & traction control", "Brake fluid exchange"] },
+  { title: "Exhaust", icon: Wind, lead: "Quiet, clean and emissions-ready.", items: ["Mufflers", "Catalytic converters", "Exhaust manifolds", "EGR valve", "Pipes, hangers & tips"] },
+  { title: "Tires", icon: Car, lead: "New rubber and the service that makes it last.", items: ["New tires", "Mounting & balancing", "Mileage rotations", "Maintenance balancing"] },
+];
+
+const VEHICLES = [
+  { icon: Car, title: "Cars & SUVs", text: "Domestic and import daily drivers." },
+  { icon: Zap, title: "Hybrid & Electric", text: "Today's battery and hybrid systems." },
+  { icon: Truck, title: "Trucks & Off-Road", text: "4x4, transfer cases and lifted rigs." },
+  { icon: Bus, title: "Fleet", text: "Work vehicles that can't sit idle." },
+];
+
+const VALUES = [
+  { icon: ShieldCheck, title: "Ethics & Integrity", text: "Act with honesty and ethics in everything we do." },
+  { icon: Gauge, title: "Continuous Improvement", text: "Strive for perfection, even if we will never be." },
+  { icon: HandHeart, title: "Servant Attitude", text: "Foster communication and teamwork." },
+  { icon: Sparkles, title: "Stay Gold", text: "“Be who you are intended to be, don't let others make you into anything else.”", gold: true },
+];
+
+const SOCIAL = [
+  { name: "Facebook", url: "https://facebook.com/stangautotech", icon: Facebook },
+  { name: "Instagram", url: "https://instagram.com/stangautotech/", icon: Instagram },
+];
+
+const SERVICE_OPTIONS = ["Not sure / diagnosis", ...SERVICES.map((s) => s.title), "Towing / Rescue Me"];
+
+// -----------------------------------------------------------------------------
+// MOTIFS
+// -----------------------------------------------------------------------------
+
+function Stripes({ className = "" }) {
+  return <span className={`stripes ${className}`} aria-hidden="true"><i /><i /></span>;
 }
 
-// -----------------------------------------------------------------------------
-// CONCEPT COUNTDOWN + INTEREST FORM (Blueprint WebStudio)
-// -----------------------------------------------------------------------------
-
-function getRemaining() {
-  const ms = Math.max(0, new Date(END_DATE).getTime() - Date.now());
-  return {
-    days: Math.floor(ms / 86400000),
-    hours: Math.floor(ms / 3600000) % 24,
-    minutes: Math.floor(ms / 60000) % 60,
-    expired: ms === 0,
-  };
-}
-
-function ConceptInterestModal({ onClose }) {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", budget: "", message: "", website: "" });
-  const [status, setStatus] = useState("idle");
-  const [error, setError] = useState("");
-  const modalRef = useRef(null);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const previousFocus = document.activeElement;
-    modalRef.current?.focus();
-    const handleEscape = (event) => { if (event.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", handleEscape);
-      previousFocus?.focus?.();
-    };
-  }, [onClose]);
-
-  function update(field, value) { setForm((prev) => ({ ...prev, [field]: value })); }
-
-  async function submit(event) {
-    event.preventDefault();
-    if (status === "sending") return;
-    if (form.website) { setStatus("sent"); return; }
-    setStatus("sending");
-    setError("");
-    try {
-      const response = await fetch("/api/demo-interest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prospect: COMPANY,
-          source: STUDIO_SOURCE,
-          page: window.location.href,
-          action: "Partner Program Interest",
-          name: form.name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-          budget: form.budget,
-          message: form.message.trim(),
-        }),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || !result.success) throw new Error(result.message || "Unable to send your message.");
-      setStatus("sent");
-    } catch (err) {
-      setStatus("error");
-      setError(err.message || "Please try again.");
-    }
-  }
-
+function Plate() {
   return (
-    <div className="interest-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <section className="interest-modal" role="dialog" aria-modal="true" aria-labelledby="interest-title" ref={modalRef} tabIndex={-1}>
-        <button type="button" className="interest-close" onClick={onClose} aria-label="Close interest form"><X size={24} /></button>
-        <span className="interest-kicker">BLUEPRINT WEBSTUDIO PARTNER PROGRAM</span>
-        {status === "sent" ? (
-          <div className="interest-success">
-            <CheckCircle2 size={44} />
-            <h2 id="interest-title">Thank you for your interest.</h2>
-            <p>Your message has been sent to Blueprint WebStudio. We'll follow up using the contact information you provided.</p>
-            <button type="button" className="interest-submit" onClick={onClose}>Close</button>
-          </div>
-        ) : (
-          <>
-            <h2 id="interest-title">Interested in this redesign?</h2>
-            <p className="interest-intro">Send a quick note and Blueprint WebStudio will follow up about launching, customizing, or taking over the site.</p>
-            <form onSubmit={submit} className="interest-form">
-              <label>Name <span>*</span><input value={form.name} onChange={(e) => update("name", e.target.value)} required maxLength={120} autoComplete="name" /></label>
-              <label>Email <span>*</span><input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} required maxLength={254} autoComplete="email" /></label>
-              <label>Phone<input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} maxLength={40} autoComplete="tel" /></label>
-              <label>Budget <span>*</span>
-                <select value={form.budget} onChange={(e) => update("budget", e.target.value)} required>
-                  <option value="">Select a range...</option>
-                  <option value="Under $1,000">Under $1,000</option>
-                  <option value="$1,000–$2,500">$1,000–$2,500</option>
-                  <option value="$2,500–$5,000">$2,500–$5,000</option>
-                  <option value="$5,000–$10,000">$5,000–$10,000</option>
-                  <option value="$10,000+">$10,000+</option>
-                  <option value="Not sure yet">Not sure yet</option>
-                </select>
-              </label>
-              <label>Message <small>(optional)</small><textarea value={form.message} onChange={(e) => update("message", e.target.value)} maxLength={3000} rows={4} placeholder="Questions, ideas, or anything you'd like us to know..." /></label>
-              <div className="interest-honeypot" aria-hidden="true"><label>Website<input type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} /></label></div>
-              {error && <p className="interest-error" role="alert">{error}</p>}
-              <button type="submit" className="interest-submit" disabled={status === "sending"}>{status === "sending" ? "Sending..." : "Send My Interest"}</button>
-              <p className="interest-privacy">Your inquiry goes directly to Blueprint WebStudio, not {COMPANY}.</p>
-            </form>
-          </>
-        )}
-      </section>
+    <div className="plate" aria-label="Family-run since 1980">
+      <span className="plate-top">COLORADO</span>
+      <strong>SINCE 80</strong>
+      <span className="plate-bottom">FAMILY RUN · BROOMFIELD</span>
     </div>
   );
 }
 
-function ConceptWidget() {
-  const [remaining, setRemaining] = useState(getRemaining);
-  const [collapsed, setCollapsed] = useState(() => typeof window !== "undefined" && window.innerWidth < 640);
-  const [showForm, setShowForm] = useState(false);
-  const closeForm = useCallback(() => setShowForm(false), []);
-
-  useEffect(() => {
-    const interval = setInterval(() => setRemaining(getRemaining()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
+function Odometer({ value }) {
   return (
-    <>
-      <aside className={`concept-widget${collapsed ? " is-collapsed" : ""}`} aria-label="Independent website concept preview">
-        <div className="concept-widget-head">
-          <span>CONCEPT REVIEW · NOT FOR OFFICIAL USE</span>
-          <button type="button" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand concept preview" : "Collapse concept preview"} aria-expanded={!collapsed}>
-            {collapsed ? <Plus size={20} /> : <Minus size={20} />}
-          </button>
-        </div>
-        {!collapsed && (
-          <div className="concept-widget-body">
-            <h2>Private Client Preview</h2>
-            <span className="concept-widget-label">PARTNER PROGRAM ELIGIBILITY</span>
-            <p>Reserved for review</p>
-            <div className="concept-widget-timer" aria-label="Time remaining for concept review">
-              {remaining.expired ? <strong>Review window ended</strong> : (
-                [[remaining.days, "Days"], [remaining.hours, "Hours"], [remaining.minutes, "Minutes"]].map(([value, unit]) => (
-                  <span key={unit}><strong>{String(value).padStart(2, "0")}</strong> {unit}</span>
-                ))
-              )}
-            </div>
-            <button type="button" className="concept-widget-cta" onClick={() => setShowForm(true)}>I'm Interested <ArrowUpRight size={18} /></button>
-            <div className="concept-widget-links">
-              {STUDIO_PHONE && <a href={`tel:${STUDIO_PHONE}`}>Call</a>}
-              <a href={`mailto:${STUDIO_EMAIL}`}>Email</a>
-              <a href={STUDIO_WEBSITE} target="_blank" rel="noopener noreferrer">Website</a>
-            </div>
-          </div>
-        )}
-        <div className="concept-widget-footer">
-          <a className="concept-widget-brand" href={STUDIO_WEBSITE} target="_blank" rel="noopener noreferrer" aria-label="Visit Blueprint WebStudio"><span className="studio-logo-mask" style={{ WebkitMaskImage: `url(${blueprintLogo})`, maskImage: `url(${blueprintLogo})` }} aria-hidden="true" /><span>Blueprint WebStudio</span></a>
-          <span>Independent concept</span>
-        </div>
-      </aside>
-      {showForm && <ConceptInterestModal onClose={closeForm} />}
-    </>
+    <div className="odometer" aria-label={`${Number(value).toLocaleString()} miles`}>
+      {value.split("").map((digit, i) => <span key={i}>{digit}</span>)}
+      <small>MI</small>
+    </div>
   );
 }
 
@@ -191,54 +120,34 @@ function ConceptWidget() {
 // HEADER
 // -----------------------------------------------------------------------------
 
-function BrandMark() {
-  if (SITE.BRAND.logo) return <span className="brand-logo"><img src={SITE.BRAND.logo} alt="" /></span>;
-  const Icon = SITE.BRAND.icon;
-  return <span className="brand-mark" aria-hidden="true"><Icon strokeWidth={2} /></span>;
-}
+const NAV = [["#services", "Services"], ["#perks", "Perks"], ["#warranty", "Warranty"], ["#crew", "Our Crew"], ["#visit", "Visit"]];
 
-function Brand({ onClick }) {
+function Header() {
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
   return (
-    <a className="brand" href="#home" onClick={onClick} aria-label={`${COMPANY} home`}>
-      <BrandMark />
-      <span className={SITE.BRAND.logoOnly ? "brand-text sr-only" : "brand-text"}><strong>{SITE.BRAND.name}</strong><small>{SITE.BRAND.sub}</small></span>
-    </a>
-  );
-}
-
-function navItems() {
-  return [
-    ["#services", "Services"],
-    SITE.FEATURE && [`#${SITE.FEATURE.id}`, SITE.FEATURE.nav],
-    ["#about", SITE.ABOUT.nav || "About"],
-    ["#reviews", "Reviews"],
-    ["#visit", SITE.VISIT.nav || "Visit"],
-  ].filter(Boolean);
-}
-
-function SiteHeader() {
-  const [menu, setMenu] = useState(false);
-  const closeMenu = () => setMenu(false);
-
-  return (
-    <div className="sticky-header">
-      <div className="announce">
-        <div className="container announce-inner">
-          <span>{SITE.ANNOUNCE}</span>
-          <a href={`tel:${PHONE}`}><Phone size={13} /> {PHONE_DISPLAY}</a>
+    <div className="sticky">
+      <div className="topbar">
+        <div className="wrap topbar-inner">
+          <span><ShieldCheck size={14} /> AAA Top Shop · CARFAX Top-Rated 2024 &amp; 2025</span>
+          <span className="topbar-right">
+            <span><Clock size={14} /> Mon–Thu 7–5 · Fri 7–2</span>
+            {SOCIAL.map(({ name, url, icon: Icon }) => <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={`${COMPANY} on ${name}`}><Icon size={14} /></a>)}
+          </span>
         </div>
       </div>
       <header className="header">
-        <div className="container nav">
-          <Brand onClick={closeMenu} />
-          <nav className={menu ? "links open" : "links"} aria-label="Main navigation">
-            {navItems().map(([href, label]) => <a key={href} href={href} onClick={closeMenu}>{label}</a>)}
-            <a className="links-cta" href="#book" onClick={closeMenu}>{SITE.BOOK.nav}</a>
+        <div className="wrap header-inner">
+          <a className="logo" href="#home" onClick={close} aria-label={`${COMPANY} home`}>
+            <img src={PHOTOS.logo} alt={COMPANY} width="229" height="66" />
+          </a>
+          <nav className={open ? "nav open" : "nav"} aria-label="Main navigation">
+            {NAV.map(([href, label]) => <a key={href} href={href} onClick={close}>{label}</a>)}
+            <a className="nav-book" href="#book" onClick={close}>Schedule Service</a>
           </nav>
-          <a className="nav-cta" href="#book">{SITE.BOOK.nav} <ArrowUpRight size={17} /></a>
-          <button className="mobile-toggle" type="button" aria-label="Toggle navigation" aria-expanded={menu} onClick={() => setMenu((current) => !current)}>
-            {menu ? <X /> : <Menu />}
-          </button>
+          <a className="header-phone" href={`tel:${PHONE}`}><Phone size={17} /> {PHONE_DISPLAY}</a>
+          <a className="btn btn-red header-cta" href="#book">Schedule <ArrowUpRight size={17} /></a>
+          <button className="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded={open} onClick={() => setOpen((v) => !v)}>{open ? <X /> : <Menu />}</button>
         </div>
       </header>
     </div>
@@ -246,196 +155,109 @@ function SiteHeader() {
 }
 
 // -----------------------------------------------------------------------------
-// PAGE SECTIONS
+// SECTIONS
 // -----------------------------------------------------------------------------
 
 function Hero({ rating }) {
-  const { HERO } = SITE;
   return (
-    <section className="hero">
-      {HERO.image && <div className="hero-photo" style={{ backgroundImage: `url(${HERO.image})` }} aria-hidden="true" />}
-      <div className="hero-grid" aria-hidden="true" />
-      <div className="container hero-inner">
+    <section className="hero" id="home">
+      <div className="hero-bg" style={{ backgroundImage: `url(${PHOTOS.owner})` }} aria-hidden="true" />
+      <Stripes className="hero-stripes" />
+      <div className="wrap hero-inner">
         <div className="hero-copy">
-          <span className="eyebrow light">{HERO.eyebrow}</span>
-          <h1><Title parts={HERO.title} /></h1>
-          <p>{HERO.text}</p>
+          <span className="kicker">Family-run · Broomfield · Since 1980</span>
+          <h1>Broomfield's <span>car &amp; truck</span> experts.</h1>
+          <p>Oil changes to engine replacements on domestic, import, hybrid, off-road and fleet vehicles. ASE-certified, AAA approved, and backed by a 36-month, 36,000-mile nationwide guarantee.</p>
           <div className="hero-actions">
-            <a className="btn primary" href="#book">{HERO.cta} <ArrowUpRight size={19} /></a>
-            <a className="btn ghost" href={`tel:${PHONE}`}><Phone size={18} /> {PHONE_DISPLAY}</a>
+            <a className="btn btn-red" href="#book">Schedule an Appointment <ArrowUpRight size={18} /></a>
+            <a className="btn btn-line" href={`tel:${PHONE}`}><Phone size={18} /> {PHONE_DISPLAY}</a>
           </div>
-        </div>
-        <aside className="hero-card" aria-label="At a glance">
-          {rating ? (
-            <a className="hero-rating" href={rating.googleMapsUri || GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer">
-              <span className="stars" aria-hidden="true">★★★★★</span>
-              <strong>{rating.rating.toFixed(1)}</strong>
-              <span>on Google · {rating.userRatingCount.toLocaleString()} reviews</span>
-            </a>
-          ) : (
-            <div className="hero-rating">
-              <span className="stars" aria-hidden="true">{HERO.badgeKicker}</span>
-              <strong>{HERO.badgeBig}</strong>
-              <span>{HERO.badgeSmall}</span>
-            </div>
-          )}
-          <ul>
-            {HERO.card.map(({ icon: Icon, title, text }) => (
-              <li key={title}><Icon size={18} /><span><b>{title}</b>{text}</span></li>
-            ))}
+          <ul className="hero-facts">
+            <li><Clock size={16} /> Mon–Thu 7–5 · Fri 7–2</li>
+            <li><MapPin size={16} /> {ADDRESS}, Broomfield</li>
+            {rating && <li><a href={rating.googleMapsUri || GOOGLE_URL} target="_blank" rel="noopener noreferrer">★ {rating.rating.toFixed(1)} · {rating.userRatingCount.toLocaleString()} Google reviews</a></li>}
           </ul>
-        </aside>
-      </div>
-      <div className="container stats">
-        {SITE.STATS(rating).map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
+        </div>
+        <div className="hero-figure">
+          <img className="hero-kyle" src={PHOTOS.kyle} alt="Stang Auto Tech technician at work" width="701" height="860" />
+          <Plate />
+        </div>
       </div>
     </section>
   );
 }
 
-// Awards and affiliations shown on the business's current site (badge image when available).
-function Awards() {
-  if (!SITE.AWARDS?.length) return null;
+function TrophyRail() {
   return (
-    <div className="awards-strip" aria-label="Awards and affiliations">
-      <div className="container">
-        {SITE.AWARDS.map(({ title, text, img }) => (
-          <article key={title}>{img ? <img src={img} alt="" loading="lazy" /> : <BadgeCheck size={26} strokeWidth={1.6} />}<span><strong>{title}</strong>{text}</span></article>
-        ))}
+    <section className="trophies" aria-label="Awards and affiliations">
+      <div className="wrap trophies-inner">
+        <div className="trophies-title">
+          <span className="kicker dark">Recognized by</span>
+          <strong>The people who rate repair shops.</strong>
+        </div>
+        <div className="trophy-row">
+          {AWARDS.map(({ src, alt, label, sub }) => (
+            <figure key={src} className="trophy">
+              <div><img src={src} alt={alt} loading="lazy" /></div>
+              <figcaption><b>{label}</b>{sub}</figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-}
-
-function Offers() {
-  if (!SITE.OFFERS?.length) return null;
-  return (
-    <div className="offer-strip" style={{ "--offer-cols": SITE.OFFERS.length }}>
-      <div className="container">
-        {SITE.OFFERS.map(([title, text]) => <article key={title}><strong>{title}</strong><span>{text}</span></article>)}
-      </div>
-    </div>
+    </section>
   );
 }
 
 function Services() {
-  const { SERVICES } = SITE;
+  const [active, setActive] = useState(0);
+  const current = SERVICES[active];
+  const Icon = current.icon;
   return (
     <section className="section services" id="services">
-      <div className="container">
-        <div className="section-head">
+      <div className="wrap">
+        <div className="head">
           <div>
-            <span className="eyebrow">{SERVICES.eyebrow}</span>
-            <h2><Title parts={SERVICES.title} /></h2>
+            <span className="kicker dark">The service menu</span>
+            <h2>Every system. <span>Every vehicle.</span></h2>
           </div>
-          <p>{SERVICES.text}</p>
+          <p>All ten service menus from the current site in one place. Pick a system to see what's covered.</p>
         </div>
-        <div className="services-grid">
-          {SERVICES.items.map(({ title, desc, icon: Icon }, index) => (
-            <article className="service-card" key={title}>
-              <div className="service-top">
-                <span className="service-icon"><Icon size={24} strokeWidth={1.6} /></span>
-                <span className="service-num">{String(index + 1).padStart(2, "0")}</span>
-              </div>
-              <h3>{title}</h3>
-              <p>{desc}</p>
-              <a href="#book" data-service={title}>{SERVICES.cta} <ArrowRight size={15} /></a>
-            </article>
-          ))}
-        </div>
-        {SERVICES.chips && (
-          <div className="chips-wrap">
-            <div>
-              <h3>{SERVICES.chips.title}</h3>
-              {SERVICES.chips.note && <p>{SERVICES.chips.note}</p>}
-            </div>
-            <div className="chips">{SERVICES.chips.items.map((item) => <span key={item}>{item}</span>)}</div>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function Feature() {
-  const { FEATURE } = SITE;
-  if (!FEATURE) return null;
-  return (
-    <section className="section feature" id={FEATURE.id}>
-      <div className="container">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow light">{FEATURE.eyebrow}</span>
-            <h2><Title parts={FEATURE.title} /></h2>
-          </div>
-          <p>{FEATURE.text}</p>
-        </div>
-        <div className={`feature-grid${FEATURE.cards.length === 3 ? " cols-3" : ""}`}>
-          {FEATURE.cards.map(({ name, icon: Icon, tone, lead, items }) => (
-            <article className="feature-card" key={name} style={tone ? { "--tone": tone } : undefined}>
-              <span className="feature-icon"><Icon size={26} strokeWidth={1.5} /></span>
-              <h3>{name}</h3>
-              <p>{lead}</p>
-              <ul>
-                {items.map((item) => <li key={item}><CheckCircle2 size={15} /> {item}</li>)}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Process() {
-  const { PROCESS } = SITE;
-  return (
-    <section className="section process">
-      <div className="container">
-        <div className="section-head">
-          <div>
-            <span className="eyebrow">{PROCESS.eyebrow}</span>
-            <h2><Title parts={PROCESS.title} /></h2>
-          </div>
-          <p>{PROCESS.text}</p>
-        </div>
-        <div className="process-grid">
-          {PROCESS.steps.map(([title, description], index) => (
-            <article key={title}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function About() {
-  const { ABOUT } = SITE;
-  return (
-    <section className="section about" id="about">
-      <div className="container about-inner">
-        <div className="about-media" aria-hidden="true">
-          <div className="about-quads">
-            {ABOUT.tiles.map(({ label, icon: Icon, tone }) => (
-              <span className="about-quad" key={label} style={tone ? { "--tone": tone } : undefined}><Icon size={34} strokeWidth={1.4} /><small>{label}</small></span>
+        <div className="menu-board">
+          <div className="menu-tabs" role="tablist" aria-label="Service categories">
+            {SERVICES.map(({ title, icon: TabIcon }, i) => (
+              <button key={title} type="button" role="tab" aria-selected={i === active} className={i === active ? "active" : ""} onClick={() => setActive(i)}>
+                <span className="tab-num">{String(i + 1).padStart(2, "0")}</span><TabIcon size={18} /> {title}
+              </button>
             ))}
           </div>
-          <div className="about-badge"><strong>{ABOUT.badge[0]}</strong><span>{ABOUT.badge[1]}</span></div>
+          <div className="menu-panel" role="tabpanel">
+            <Stripes className="panel-stripes" />
+            <span className="panel-icon"><Icon size={30} strokeWidth={1.6} /></span>
+            <h3>{current.title}</h3>
+            <p>{current.lead}</p>
+            <ul>{current.items.map((item) => <li key={item}><CheckCircle2 size={16} /> {item}</li>)}</ul>
+            <a className="btn btn-red" href="#book" data-service={current.title}>Schedule {current.title} <ArrowRight size={17} /></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Vehicles() {
+  return (
+    <section className="vehicles">
+      <div className="wrap vehicles-inner">
+        <div className="vehicles-car">
+          <img src={PHOTOS.mustang} alt="Ford Mustang GT" loading="lazy" width="819" height="900" />
         </div>
         <div>
-          <span className="eyebrow">{ABOUT.eyebrow}</span>
-          <h2><Title parts={ABOUT.title} /></h2>
-          {ABOUT.text.map((paragraph) => <p className="about-lead" key={paragraph.slice(0, 24)}>{paragraph}</p>)}
-          <div className="credentials">
-            {ABOUT.credentials.map(({ title, desc }) => (
-              <div key={title}>
-                <BadgeCheck size={22} strokeWidth={1.6} />
-                <span><strong>{title}</strong>{desc}</span>
-              </div>
+          <span className="kicker">What rolls into our bays</span>
+          <h2>Pony cars to <span>work trucks.</span></h2>
+          <p className="lead-light">One shop for the whole household and the whole fleet, serving Broomfield, Adams and Boulder counties.</p>
+          <div className="vehicle-grid">
+            {VEHICLES.map(({ icon: Icon, title, text }) => (
+              <div key={title}><Icon size={24} strokeWidth={1.6} /><b>{title}</b><span>{text}</span></div>
             ))}
           </div>
         </div>
@@ -444,72 +266,92 @@ function About() {
   );
 }
 
-function Reviews({ data, rating }) {
-  const reviews = data?.reviews?.filter((review) => review.text?.text || review.originalText?.text) || [];
-  const { REVIEWS } = SITE;
+function Perks() {
   return (
-    <section className="section reviews" id="reviews">
-      <div className="container">
-        <div className="section-head">
+    <section className="section perks" id="perks">
+      <div className="wrap">
+        <div className="head">
           <div>
-            <span className="eyebrow">CUSTOMER REVIEWS</span>
-            <h2>{rating ? <>Rated {rating.rating.toFixed(1)} by <em>{rating.userRatingCount.toLocaleString()} customers.</em></> : <Title parts={REVIEWS.title} />}</h2>
+            <span className="kicker dark">Pit pass</span>
+            <h2>Your car's in the shop. <span>You're not stuck.</span></h2>
           </div>
-          <p>{REVIEWS.text}</p>
+          <p>Perks for valued customers, plus seasonal specials throughout the year.</p>
         </div>
-        <div className="reviews-summary">
-          <div>
-            <span className="google-wordmark">Google</span>
-            {rating ? (
-              <>
-                <strong>{rating.rating.toFixed(1)} <span className="stars">★★★★★</span></strong>
-                <span>{rating.userRatingCount.toLocaleString()} Google reviews</span>
-              </>
-            ) : (
-              <span>See what customers say about {COMPANY} on Google.</span>
-            )}
-          </div>
-          <div className="reviews-actions">
-            <a className="btn dark" href={rating?.googleMapsUri || GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer">Read reviews on Google <ArrowUpRight size={17} /></a>
-            {GOOGLE_WRITE_REVIEW_URL && <a className="btn outline" href={GOOGLE_WRITE_REVIEW_URL} target="_blank" rel="noopener noreferrer">Leave a review</a>}
-          </div>
+        <div className="tickets">
+          {PERKS.map(([big, title, text]) => (
+            <article className="ticket" key={title}>
+              <div className="ticket-stub"><strong>{big}</strong></div>
+              <div className="ticket-body"><b>{title}</b><span>{text}</span></div>
+            </article>
+          ))}
         </div>
-        {reviews.length > 0 ? (
-          <>
-            <div className="reviews-grid">
-              {reviews.slice(0, 3).map((review, i) => (
-                <article className="review-card" key={`${review.publishTime || i}-${i}`}>
-                  <div className="stars" aria-label={`${review.rating} out of 5 stars`}>{"★".repeat(Math.max(0, Math.min(5, Math.round(review.rating || 0))))}</div>
-                  <p>{review.text?.text || review.originalText?.text}</p>
-                  <footer>
-                    <strong>{review.authorAttribution?.displayName || "Google reviewer"}</strong>
-                    <small>{review.relativePublishTimeDescription}</small>
-                  </footer>
-                </article>
-              ))}
-            </div>
-            <p className="reviews-attribution">Reviews provided by Google. A limited selection is displayed.</p>
-          </>
-        ) : REVIEWS.quotes?.length > 0 && (
-          <>
-            <div className="quotes-grid">
-              {REVIEWS.quotes.map(([text, name]) => (
-                <article className="quote-card" key={name}>
-                  <blockquote>{text}</blockquote>
-                  <footer>{name}<small>{REVIEWS.quoteSource}</small></footer>
-                </article>
-              ))}
-            </div>
-          </>
-        )}
       </div>
     </section>
   );
 }
 
-function RequestForm() {
-  const { BOOK } = SITE;
-  const blank = Object.fromEntries([...BOOK.fields.flat().map((field) => [field.name, ""]), ["website", ""]]);
+function Warranty() {
+  return (
+    <section className="section warranty" id="warranty">
+      <Stripes className="warranty-stripes" />
+      <div className="wrap warranty-inner">
+        <div className="warranty-card">
+          <span className="kicker">Nationwide guarantee</span>
+          <h2>36 months. <span>36,000 miles.</span></h2>
+          <p>One of the best warranties in the industry, honored across the country. Your repair stays covered whether you're in Broomfield or on a road trip.</p>
+          <Odometer value="036000" />
+        </div>
+        <div className="rescue">
+          <span className="rescue-icon"><LifeBuoy size={34} strokeWidth={1.6} /></span>
+          <span className="kicker">Rescue Me Roadside Assistance</span>
+          <h3>Stranded? Call for help.</h3>
+          <ul>
+            {["Towing", "Flat tires", "No-starts", "Locked-in keys"].map((x) => <li key={x}><KeyRound size={15} /> {x}</li>)}
+          </ul>
+          <a className="btn btn-red" href={`tel:${PHONE}`}><Phone size={17} /> Call {PHONE_DISPLAY}</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Crew() {
+  return (
+    <section className="section crew" id="crew">
+      <div className="wrap">
+        <div className="crew-top">
+          <div>
+            <span className="kicker dark">Family, community, faith</span>
+            <h2>The crew behind <span>the counter.</span></h2>
+          </div>
+          <p>Since 1980, Stang Auto Tech has been a family-run, full-service repair and preventive maintenance center for Broomfield, Adams and Boulder counties. Our mission is to put integrity and our customers first, in a workplace that inspires the people who work here.</p>
+        </div>
+        <figure className="crew-photo">
+          <img src={PHOTOS.team} alt="The Stang Auto Tech team" loading="lazy" width="1920" height="584" />
+          <figcaption>The Stang Auto Tech team, Broomfield</figcaption>
+        </figure>
+        <div className="values">
+          {VALUES.map(({ icon: Icon, title, text, gold }) => (
+            <article key={title} className={gold ? "value gold" : "value"}>
+              <Icon size={26} strokeWidth={1.6} />
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+        <div className="filmstrip">
+          <img src={PHOTOS.interior} alt="Two technicians checking a car's interior" loading="lazy" />
+          <img src={PHOTOS.tire} alt="Technician removing a tire" loading="lazy" />
+          <img src={PHOTOS.mentor} alt="A mentor working with a young apprentice" loading="lazy" />
+          <img src={PHOTOS.snow} alt="The Stang Auto Tech team outside in the snow" loading="lazy" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BookingForm() {
+  const blank = { name: "", phone: "", email: "", vehicle: "", service: "", ride: "", date: "", notes: "", website: "" };
   const [form, setForm] = useState(blank);
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
@@ -523,7 +365,7 @@ function RequestForm() {
     return () => document.removeEventListener("click", pick);
   }, []);
 
-  function update(field, value) { setForm((prev) => ({ ...prev, [field]: value })); }
+  const update = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   async function submit(event) {
     event.preventDefault();
@@ -531,11 +373,7 @@ function RequestForm() {
     setStatus("sending");
     setMessage("");
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) throw new Error(result.message || "Something went wrong.");
       setStatus(result.demo ? "demo" : "sent");
@@ -547,103 +385,85 @@ function RequestForm() {
 
   if (status === "sent" || status === "demo") {
     return (
-      <div className="book-form book-done">
+      <div className="form done">
         <CheckCircle2 size={44} />
-        <h3>{status === "demo" ? `This is where ${SITE.BRAND.name} gets your request.` : "Request received."}</h3>
-        <p>
-          {status === "demo"
-            ? `In this concept preview, requests aren't sent anywhere. On the live site they'd land in the ${SITE.NOUN} inbox with everything ${SITE.BRAND.name} needs to call back.`
-            : `Thanks, ${form.name.split(" ")[0]}. We'll be in touch to confirm.`}
-        </p>
-        <button type="button" className="btn dark" onClick={() => setStatus("idle")}>Back to the form</button>
+        <h3>{status === "demo" ? "This is where Stang gets your request." : "Request received."}</h3>
+        <p>{status === "demo"
+          ? "In this concept preview, requests aren't sent anywhere. On the live site they'd land in the shop's inbox with everything needed to call you back."
+          : `Thanks, ${form.name.split(" ")[0]}. We'll call to confirm your time.`}</p>
+        <button type="button" className="btn btn-dark" onClick={() => setStatus("idle")}>Back to the form</button>
       </div>
     );
   }
 
-  const renderField = (field) => {
-    const common = { value: form[field.name], onChange: (e) => update(field.name, e.target.value), required: field.required };
-    let control;
-    if (field.type === "select") {
-      control = (
-        <select {...common}>
-          <option value="">{field.placeholder || "Choose…"}</option>
-          {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
-        </select>
-      );
-    } else if (field.type === "textarea") {
-      control = <textarea rows={4} maxLength={3000} placeholder={field.placeholder} {...common} />;
-    } else {
-      control = <input type={field.type || "text"} maxLength={field.type === "email" ? 254 : 160} placeholder={field.placeholder} autoComplete={field.autoComplete} {...common} />;
-    }
-    return <label key={field.name}>{field.label}{field.required ? " *" : ""}{control}</label>;
-  };
-
   return (
-    <form className="book-form" onSubmit={submit}>
-      {BOOK.fields.map((row, index) => (Array.isArray(row) ? <div className="book-row" key={index}>{row.map(renderField)}</div> : renderField(row)))}
-      <div className="interest-honeypot" aria-hidden="true"><label>Website<input type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update("website", e.target.value)} /></label></div>
+    <form className="form" onSubmit={submit}>
+      <div className="form-row">
+        <label>Name *<input value={form.name} onChange={update("name")} required maxLength={160} autoComplete="name" /></label>
+        <label>Phone *<input type="tel" value={form.phone} onChange={update("phone")} required maxLength={40} autoComplete="tel" /></label>
+      </div>
+      <div className="form-row">
+        <label>Email<input type="email" value={form.email} onChange={update("email")} maxLength={254} autoComplete="email" /></label>
+        <label>Vehicle<input value={form.vehicle} onChange={update("vehicle")} maxLength={160} placeholder="Year, make, model" /></label>
+      </div>
+      <div className="form-row">
+        <label>Service<select value={form.service} onChange={update("service")}><option value="">Choose a service…</option>{SERVICE_OPTIONS.map((o) => <option key={o}>{o}</option>)}</select></label>
+        <label>While we work<select value={form.ride} onChange={update("ride")}><option value="">Choose…</option>{["I'll wait / drop off", "Free shuttle", "$15 valet", "$25/day rental"].map((o) => <option key={o}>{o}</option>)}</select></label>
+      </div>
+      <label>Preferred day<input type="date" value={form.date} onChange={update("date")} /></label>
+      <label>What's going on?<textarea rows={4} maxLength={3000} value={form.notes} onChange={update("notes")} placeholder="Symptoms, warning lights, service due…" /></label>
+      <div className="interest-honeypot" aria-hidden="true"><label>Website<input type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={update("website")} /></label></div>
       {message && <p className="form-error" role="alert">{message}</p>}
-      <button type="submit" className="btn primary full" disabled={status === "sending"}>{status === "sending" ? "Sending…" : BOOK.submit} <ArrowUpRight size={18} /></button>
-      <p className="form-note">{BOOK.note} <a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a>.</p>
+      <button type="submit" className="btn btn-red full" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Request Appointment"} <ArrowUpRight size={18} /></button>
+      <p className="form-note">We'll confirm by phone. Need it sooner? Call <a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a>.</p>
     </form>
   );
 }
 
 function Book() {
-  const { BOOK } = SITE;
   return (
     <section className="section book" id="book">
-      <div className="container book-inner">
+      <Stripes className="book-stripes" />
+      <div className="wrap book-inner">
         <div>
-          <span className="eyebrow light">{BOOK.eyebrow}</span>
-          <h2><Title parts={BOOK.title} /></h2>
-          <p>{BOOK.text}</p>
+          <span className="kicker">Schedule an appointment</span>
+          <h2>Booking that <span>actually works.</span></h2>
+          <p className="lead-light">Pick a service and a day. We'll confirm your time and line up a shuttle, valet or rental if you need one.</p>
           <ul className="book-points">
-            {BOOK.points.map((point) => <li key={point}><CheckCircle2 size={18} /> {point}</li>)}
+            <li><CheckCircle2 size={18} /> Mon–Thu 7 am – 5 pm, Fri 7 am – 2 pm</li>
+            <li><CheckCircle2 size={18} /> Free shuttle or $25/day rental</li>
+            <li><CheckCircle2 size={18} /> 36/36 nationwide guarantee</li>
           </ul>
         </div>
-        <RequestForm />
+        <BookingForm />
       </div>
     </section>
   );
 }
 
-function Visit() {
-  const { VISIT, HOURS } = SITE;
+function Visit({ rating }) {
   const embed = `https://maps.google.com/maps?q=${encodeURIComponent(MAPS_QUERY)}&z=15&output=embed`;
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAPS_QUERY)}`;
   return (
     <section className="section visit" id="visit">
-      <div className="container visit-inner">
-        <div className="visit-info">
-          <span className="eyebrow">{VISIT.eyebrow}</span>
-          <h2><Title parts={VISIT.title} /></h2>
-          <div className="visit-blocks">
-            {ADDRESS && (
-              <div>
-                <MapPin size={20} />
-                <span><small>ADDRESS</small>{ADDRESS}<br />{CITY}</span>
-              </div>
-            )}
-            <div>
-              <Phone size={20} />
-              <span><small>PHONE</small><a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a>{EMAIL && <><br /><a href={`mailto:${EMAIL}`}>{EMAIL}</a></>}</span>
-            </div>
-            {HOURS.length > 0 && (
-              <div>
-                <Clock size={20} />
-                <span><small>HOURS</small>
-                  {HOURS.map(([day, hours]) => <span className="hours-row" key={day}><b>{day}</b>{hours}</span>)}
-                </span>
-              </div>
-            )}
+      <div className="wrap visit-inner">
+        <div>
+          <span className="kicker dark">Visit the shop</span>
+          <h2>West 116th Avenue, <span>Broomfield.</span></h2>
+          <div className="visit-list">
+            <div><MapPin size={20} /><span><small>Address</small>{ADDRESS}<br />{CITY}</span></div>
+            <div><Phone size={20} /><span><small>Phone</small><a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a></span></div>
+            <div><Clock size={20} /><span><small>Hours</small>{HOURS.map(([d, h]) => <span className="hours" key={d}><b>{d}</b>{h}</span>)}</span></div>
           </div>
-          <a className="btn dark" href={directions} target="_blank" rel="noopener noreferrer">Get Directions <ArrowUpRight size={17} /></a>
-          <p className="areas">{VISIT.areas}</p>
+          <div className="visit-actions">
+            <a className="btn btn-dark" href={directions} target="_blank" rel="noopener noreferrer">Get Directions <ArrowUpRight size={17} /></a>
+            <a className="btn btn-outline" href={rating?.googleMapsUri || GOOGLE_URL} target="_blank" rel="noopener noreferrer">
+              {rating ? `★ ${rating.rating.toFixed(1)} · Read Google reviews` : "Read reviews on Google"} <ArrowUpRight size={17} />
+            </a>
+          </div>
+          <p className="areas">Serving Broomfield, Adams and Boulder counties.</p>
         </div>
-        <div className="visit-map">
-          <iframe title={`Map to ${COMPANY}`} src={embed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-        </div>
+        <div className="map"><iframe title={`Map to ${COMPANY}`} src={embed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /></div>
       </div>
     </section>
   );
@@ -652,84 +472,59 @@ function Visit() {
 function Footer() {
   return (
     <footer className="footer">
-      <div className="container footer-main">
+      <Stripes className="footer-stripes" />
+      <div className="wrap footer-main">
         <div>
-          <Brand />
-          <p>{SITE.FOOTER_BLURB}</p>
+          <span className="footer-logo"><img src={PHOTOS.logo} alt={COMPANY} width="229" height="66" loading="lazy" /></span>
+          <p>Family-run car and truck repair in Broomfield since 1980. AAA Top Shop, ASE-certified, 36/36 nationwide guarantee.</p>
           <div className="footer-social">
-            {SITE.SOCIAL_LINKS.filter(({ url }) => url).map(({ name, url, icon: Icon }) => (
-              <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name} title={name}><Icon size={16} /></a>
-            ))}
+            {SOCIAL.map(({ name, url, icon: Icon }) => <a key={name} href={url} target="_blank" rel="noopener noreferrer" aria-label={name}><Icon size={16} /></a>)}
+            <a href="https://yelp.com/biz/stang-auto-tech-broomfield" target="_blank" rel="noopener noreferrer" aria-label="Yelp" className="footer-yelp">Yelp</a>
           </div>
         </div>
-        <div>
-          <b>Services</b>
-          {SITE.SERVICES.items.slice(0, 5).map(({ title }) => <a key={title} href="#services">{title}</a>)}
-        </div>
-        <div>
-          <b>{SITE.NOUN === "shop" ? "Shop" : "Company"}</b>
-          {navItems().slice(1).map(([href, label]) => <a key={href} href={href}>{label}</a>)}
-          <a href="#book">{SITE.BOOK.nav}</a>
-        </div>
-        <div>
-          <b>Contact</b>
-          <a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a>
-          {EMAIL && <a href={`mailto:${EMAIL}`}>{EMAIL}</a>}
-          {ADDRESS && <span>{ADDRESS}</span>}
-          {ADDRESS && <span>{CITY}</span>}
-          {SITE.HOURS_SHORT && <span>{SITE.HOURS_SHORT}</span>}
-        </div>
+        <div><b>Services</b>{SERVICES.slice(0, 6).map(({ title }) => <a key={title} href="#services">{title}</a>)}</div>
+        <div><b>Shop</b>{NAV.map(([href, label]) => <a key={href} href={href}>{label}</a>)}<a href="#book">Schedule Service</a></div>
+        <div><b>Contact</b><a href={`tel:${PHONE}`}>{PHONE_DISPLAY}</a><span>{ADDRESS}</span><span>{CITY}</span><span>Mon–Thu 7–5 · Fri 7–2</span></div>
       </div>
-      <div className="container footer-bottom">
+      <div className="wrap footer-bottom">
         <span>© {new Date().getFullYear()} {COMPANY}. Independent design concept, not an official company website.</span>
-        <a className="footer-studio-brand" href={STUDIO_WEBSITE} target="_blank" rel="noopener noreferrer" aria-label="Website concept by Blueprint WebStudio">
-          <span>Concept redesign by</span>
-          <span className="studio-logo-mask" style={{ WebkitMaskImage: `url(${blueprintLogo})`, maskImage: `url(${blueprintLogo})` }} aria-hidden="true" />
-          <strong>Blueprint WebStudio</strong>
-        </a>
+        <StudioCredit />
       </div>
     </footer>
   );
 }
 
 // -----------------------------------------------------------------------------
-// APP — PAGE ORDER
+// PAGE
 // -----------------------------------------------------------------------------
 
 export default function App() {
-  const [reviewData, setReviewData] = useState(null);
+  const [rating, setRating] = useState(null);
 
+  // A rating shows only when live Google data is configured (GOOGLE_PLACES_API_KEY + GOOGLE_PLACE_ID).
   useEffect(() => {
     const controller = new AbortController();
     fetch("/api/google-reviews", { signal: controller.signal })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data) => { if (data) setReviewData(data); })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (typeof d?.rating === "number" && typeof d?.userRatingCount === "number") setRating(d); })
       .catch(() => {});
     return () => controller.abort();
   }, []);
 
-  const live = typeof reviewData?.rating === "number" && typeof reviewData?.userRatingCount === "number";
-  const rating = live
-    ? { rating: reviewData.rating, userRatingCount: reviewData.userRatingCount, googleMapsUri: reviewData.googleMapsUri || null }
-    : FALLBACK_RATING
-      ? { rating: FALLBACK_RATING.rating, userRatingCount: FALLBACK_RATING.userRatingCount, googleMapsUri: null }
-      : null;
-
   return (
     <>
-      <ConceptWidget />
-      <SiteHeader />
-      <main id="home">
+      <ConceptWidget company={COMPANY} abbr={ABBR} endDate={END_DATE} />
+      <Header />
+      <main>
         <Hero rating={rating} />
-        <Awards />
-        <Offers />
+        <TrophyRail />
         <Services />
-        <Feature />
-        <Process />
-        <About />
-        <Reviews data={reviewData} rating={rating} />
+        <Vehicles />
+        <Perks />
+        <Warranty />
+        <Crew />
         <Book />
-        <Visit />
+        <Visit rating={rating} />
       </main>
       <Footer />
     </>

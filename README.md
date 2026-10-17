@@ -3,7 +3,7 @@
 Independent, non-official redesign concept for http://www.stangautotech.com (redirects to broomfieldautorepair.com) (Broomfield, CO).
 Preview: https://sat.blueprintwebstudio.com (noindex; the demo code lives in the Neon `demos` table).
 
-All business content is in `src/site.js`; colors and fonts are in `src/theme.css`. `src/App.jsx` is the shared layout.
+This is a custom build for Stang, not the shared concept layout. Content and layout are in `src/App.jsx`, styles in `src/styles.css`, and the Blueprint WebStudio concept widget in `src/concept.jsx`.
 
 ## Local setup
 
@@ -40,16 +40,18 @@ The "I'm Interested" form posts to `api/demo-interest.js`, which proxies to the 
 - Puts the Stang Auto Tech name back front and center; the brand domain currently redirects to a generic "Broomfield Auto Repair" site.
 - Fixes the placeholder "Write your caption here" under the team photo, the stray "Button" label in the hero, and the CARFAX badge mislabeled "Cargax".
 - Shows the AAA Top Shop, CARFAX and ASA badges together, plus the 36-month/36,000-mile nationwide guarantee and perks (free shuttle, $25/day rentals, free 5th oil change).
-- Groups 13 service menus into 8 clear categories and adds a copyright line.
+- All ten service menus from the current site, with their full item lists, in a tabbed menu board.
+- Custom design built from the business itself: the real Stang logo and its indigo and raspberry colors, twin Mustang racing stripes, a Colorado "Since 80" plate, a pit-pass perks strip, an odometer for the 36/36 guarantee, and the four core values including "Stay Gold".
+- Real photos from the current site (owner, Kyle, team, shop, Mustang). The Google rating appears only when the live Google feed is connected; no reviews or ratings are invented.
+- Adds a copyright line.
 
 ## Before client presentation
 
-- Confirm the palette against the real logo. Black and gold come from the Mustang namesake and the "Stay Gold" core value; the logo file couldn't be inspected.
-- Confirm the Google rating and count. 4.8 / 210 is a fallback from a third-party listing that may be outdated.
+- The palette (indigo #383996, raspberry #bd2855) is sampled from the real logo; gold is used only for "Stay Gold".
+- The rating badge shows only when `GOOGLE_PLACES_API_KEY` and `GOOGLE_PLACE_ID` are set; there is no fallback number.
 - Confirm the CARFAX badge years (2024 and 2025), the AAA Top Shop award and ASA membership are current.
 - Confirm the perks and prices ($15 valet, $25/day rentals, free 5th oil change) and Rescue Me Roadside Assistance terms.
 - Find a contact email; none is listed on the current site, so the concept form falls back to a demo message.
-- Logo, badges and team photos are hotlinked from the current site; host copies with permission before launch.
 - Real logo and photos are hotlinked from the current site; host copies (with permission) before launch.
 - Keep the independent-concept disclaimer visible; do not imply this is the company's official site.
 - The countdown is display-only, not access control. The subdomain is public to anyone with the URL.
